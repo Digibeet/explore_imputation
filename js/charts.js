@@ -11,12 +11,12 @@ jQuery.get('data/results.txt', function(data) {
     });
 
     // Default settings
-    x_variable = 'missing_perc'
-    missing_type = 'MAR'
-    evaluation_error_metric = 'RMSE'
-    evaluation_model = 'lin'
-    desired_columns = ['drop', 'median']
-    confidence_interval = true
+    x_variable = 'missing_perc' //Currently no button needed
+    missing_type = 'MAR' //Dropdown with three choices: MCAR, MAR, MNAR
+    evaluation_error_metric = 'RMSE' //Dropdown with choices MSE and RMSE
+    evaluation_model = 'lin' //Currently no button needed
+    desired_columns = ['drop', 'median'] //Clickbutton with three options (drop, mean, median), clicked methods should be stored in this variable
+    confidence_interval = true //Option with click yes or no
 
     x_variable_index = header_map[x_variable];
     missing_type_index = header_map['missing_type'];
