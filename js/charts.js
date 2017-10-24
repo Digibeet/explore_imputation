@@ -1,25 +1,26 @@
 jQuery.get('data/results.txt', function(data) {
+
     lines = data.split("\n");
     var header = lines[0];
     lines.shift()
     columns = header.split("\t");
 
     header_map = {};
-
     columns.forEach(function (column, index) {
         header_map[column] = index;
     });
 
     data = {"MCAR":[], "MAR":[], "MNAR":[]};
 
-    desired_columns = ["drop", "mean"]; // This needs to be interactive (start with just drop en mean)
+    desired_columns = ["drop", "mean"]; // This needs to be interactive (start with just drop en mean, options: also median)
     desired_columns_indexes = []
-    confidence_interval = true; // This needs to be interactive (yes/no)
+    confidence_interval = true; // This needs to be interactive (true/false)
 
     for (index in desired_columns){
         column = desired_columns[index]
         column_index = header_map[column]
         desired_columns_indexes.push(column_index)
+
         if (confidence_interval){    
         desired_columns_indexes.push(parseInt(column_index) + parseInt(1)) //lower bound
         desired_columns_indexes.push(parseInt(column_index) + parseInt(2)) //upper bound
@@ -27,24 +28,23 @@ jQuery.get('data/results.txt', function(data) {
     }
 
     x_column_index = header_map["missing_perc"];
+    missing_type_index = header_map["missing_type"]
+    evaluation_error_metric = 'MSE' //This needs to be interactive: RMSE, or MSE
 
     for(line_index in lines){
         line = lines[line_index]
-
         fields = line.split("\t")
 
-        missing_type_index = header_map["missing_type"]
-
         var missing_type = fields[missing_type_index]
-
         var desired_fields = {"x":fields[x_column_index]}
 
         for (index in desired_columns_indexes){
-            column_name = columns[desired_columns_indexes[index]]
-            desired_fields[column_name] = fields[desired_columns_indexes[index]]
+            column_index = desired_columns_indexes[index]
+            column_name = columns[column_index]
+            desired_fields[column_name] = fields[column_index]
         }
 
-        if(data[missing_type]) {
+        if (data[missing_type]) {
             data[missing_type].push(desired_fields)
         } else {
             data[missing_type] = []
@@ -52,9 +52,13 @@ jQuery.get('data/results.txt', function(data) {
         }  
     }
 
-    series = [];
-
     desired_missing_type = "MCAR" // This needs to be interactive
+
+    series = [];    
+
+    Highcharts.setOptions({
+        colors: ['#b2182b', '#1b7837', '#2166ac']
+    });
 
     for (imputation_method_index in desired_columns) {
         imputation_method = desired_columns[imputation_method_index]
@@ -70,7 +74,8 @@ jQuery.get('data/results.txt', function(data) {
             marker: {
                 fillColor: 'white',
                 lineWidth: 2,
-                lineColor: Highcharts.getOptions().colors[0]
+                radius: 3,
+                lineColor: Highcharts.getOptions().colors[imputation_method_index]
             }
         }
 
@@ -84,13 +89,15 @@ jQuery.get('data/results.txt', function(data) {
                 return [parseFloat(point["x"]), parseFloat(point[lower_bound_imputation_method]), parseFloat(point[upper_bound_imputation_method])];
             });
 
+            var range = "ci range ";
+
             range = {
-                name: 'ci_range',
+                name: range.concat(imputation_method),
                 data: range_data,
                 type: 'arearange',
                 lineWidth: 0,
                 linkedTo: ':previous',
-                color: Highcharts.getOptions().colors[0],
+                color: Highcharts.getOptions().colors[imputation_method_index],
                 fillOpacity: 0.3,
                 zIndex: 0,
                 marker: {
@@ -109,11 +116,19 @@ jQuery.get('data/results.txt', function(data) {
     },
 
     xAxis: {
+        tickInterval: 0.05,
+        softMin: 0.04,
+        softMax: 0.26,
+        labels: {
+            x: 0,
+            y: 25,
+            zIndex: 7
+        }
     },
 
     yAxis: {
         title: {
-            text: null
+            text: 'MSE'
         }
     },
 
@@ -124,6 +139,10 @@ jQuery.get('data/results.txt', function(data) {
     },
 
     legend: {
+    },
+
+    credits: {
+        enabled: false
     },
 
     series: series
