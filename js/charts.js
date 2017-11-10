@@ -1,4 +1,4 @@
-jQuery.get('data/results.txt', function(data) {
+jQuery.get('data/results_custom_dataset_500_5.txt', function(data) {
 
     lines = data.split("\n");
     var header = lines[0];
@@ -6,21 +6,28 @@ jQuery.get('data/results.txt', function(data) {
     column_names = header.split("\t");
 
     header_map = {};
-    column_names.forEach(function (column, index) {
+    column_names.forEach(function(column, index) {
         header_map[column] = index;
     });
 
     // Default settings
-    x_variable = 'missing_perc' //Currently no button needed
-    missing_type = 'MAR' //Dropdown with three choices: MCAR, MAR, MNAR
-    evaluation_error_metric = 'RMSE' //Dropdown with choices MSE and RMSE
+    x_variable = 'missing_rows_percentage' //dropdown with two choices: Proportion of incomplete rows, proportion of empty data cells
+    missing_type = 'MCAR' //Dropdown with three choices: MCAR, MAR, MNAR
+    evaluation_error_metric = 'RMSE' //Dropdown with choices MSE, RMSE and R2
     evaluation_model = 'lin' //Currently no button needed
-    desired_columns = ['drop', 'median'] //Clickbutton with three options (drop, mean, median), clicked methods should be stored in this variable
-    confidence_interval = true //Option with click yes or no
+    desired_columns = ['drop', 'mean', 'median', 'regression', 'random', 'stochastic'] //Clickbutton with three options (drop, mean, median), clicked methods should be stored in this variable
+    confidence_interval = false //Option with click yes or no
 
-    x_variable_index = header_map[x_variable];
+    x_variable_index = header_map[x_variable]; //doesn't work with 'missing_cells_percentage', why not? 
     missing_type_index = header_map['missing_type'];
-    evaluation_model_index = header_map['model']
+    evaluation_model_index = header_map['model'];
+    evaluation_metric_index = header_map['evaluation_metric'];
+
+    if ((evaluation_error_metric == 'RMSE') || (evaluation_error_metric == 'MSE')){
+        evaluation_metric = 'mse'
+    } else {
+        evaluation_metric = 'ev'
+    }
 
     desired_columns_indexes = []
     for (index in desired_columns){
@@ -40,17 +47,23 @@ jQuery.get('data/results.txt', function(data) {
         fields = line.split("\t")
 
         if (fields[missing_type_index] == missing_type) {
-            if (fields[evaluation_model_index] == evaluation_model) {
-
-                var desired_fields = {"x":fields[x_variable_index]}
-
-                for (index in desired_columns_indexes){
-                    column_index = desired_columns_indexes[index]
-                    column_name = column_names[column_index]
-                    desired_fields[column_name] = fields[column_index]
+            //console.log(fields)
+            if (fields[evaluation_metric_index] == evaluation_metric) {
+                //console.log(fields)
+                if (fields[evaluation_model_index] == evaluation_model) {
+                    //console.log(fields)
+                    if (fields[evaluation_model_index] == evaluation_model) {
+                        var desired_fields = {"x":fields[x_variable_index]}
+                        for (index in desired_columns_indexes){
+                            column_index = desired_columns_indexes[index]
+                            column_name = column_names[column_index]
+                            desired_fields[column_name] = fields[column_index]
+                        }
+                        console.log(desired_fields)
+                    
+                        plot_data.push(desired_fields)
+                    }
                 }
-
-                plot_data.push(desired_fields)
             }
         }
     }
@@ -79,9 +92,12 @@ jQuery.get('data/results.txt', function(data) {
                 });
 
                 ranges_data.push(one_range)
-                var y_axis_name = "RMSE"
+                
             }
         }
+
+        var y_axis_name = "RMSE"
+
     } else {
 
         for (imputation_method_index in desired_columns) {
@@ -103,15 +119,24 @@ jQuery.get('data/results.txt', function(data) {
                 });
 
                 ranges_data.push(one_range)
-                var y_axis_name = "MSE"
             }
         }
-    }
+
+        if (evaluation_error_metric == 'MSE') {
+
+            var y_axis_name = "MSE"
+
+        } else if (evaluation_error_metric == 'R2') {
+
+            var y_axis_name = "R2"
+        
+        }
+    } 
 
     // Set up plot
     series = [];    
     Highcharts.setOptions({
-        colors: ['#b2182b', '#1b7837', '#2166ac']
+        colors: ['#b2182b', '#1b7837', '#2166ac', '#756bb1', '#fa9fb5', '#f1a340']
     });
 
     for (imputation_method_index in desired_columns) {
@@ -158,6 +183,12 @@ jQuery.get('data/results.txt', function(data) {
 
     }
 
+    if (x_variable == 'missing_rows_percentage') {
+        var x_axis_name = 'Proportion of incomplete rows'
+    } else if (x_variable == 'missing_cells_percentage') {
+        var x_axis_name = 'Proportion of missing data cells'
+    }
+
     // Create plot
     Highcharts.chart('container', {
 
@@ -166,13 +197,8 @@ jQuery.get('data/results.txt', function(data) {
     },
 
     xAxis: {
-        tickInterval: 0.05,
-        softMin: 0.04,
-        softMax: 0.26,
-        labels: {
-            x: 0,
-            y: 25,
-            zIndex: 7
+        title: {
+            text: x_axis_name
         }
     },
 
@@ -183,9 +209,15 @@ jQuery.get('data/results.txt', function(data) {
     },
 
     tooltip: {
-        crosshairs: true,
+        crosshairs: false,
         shared: true,
-        valueSuffix: '°C'
+        valuePrefix: '',
+        valueSuffix: '',
+        valueDecimals: 3,
+    },
+
+    chart: {
+        zoomType: 'xy',
     },
 
     legend: {
