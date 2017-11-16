@@ -1,4 +1,4 @@
-jQuery.get('data/results_custom_dataset_500_5.txt', function(data) {
+jQuery.get('data/results_forest_fires.txt', function(data) {
 
     lines = data.split("\n");
     var header = lines[0];
@@ -9,11 +9,12 @@ jQuery.get('data/results_custom_dataset_500_5.txt', function(data) {
     column_names.forEach(function(column, index) {
         header_map[column] = index;
     });
+    console.log(header_map)
 
     // Default settings
-    x_variable = 'missing_rows_percentage' //dropdown with two choices: Proportion of incomplete rows, proportion of empty data cells
-    missing_type = 'MCAR' //Dropdown with three choices: MCAR, MAR, MNAR
-    evaluation_error_metric = 'RMSE' //Dropdown with choices MSE, RMSE and R2
+    x_variable = 'missing_rows_proportion' //dropdown with two choices: Proportion of incomplete rows, proportion of empty data cells
+    missing_type = 'MAR' //Dropdown with three choices: MCAR, MAR, MNAR
+    evaluation_error_metric = 'MSE' //Dropdown with choices MSE, RMSE and R2
     evaluation_model = 'lin' //Currently no button needed
     desired_columns = ['drop', 'mean', 'median', 'regression', 'random', 'stochastic'] //Clickbutton with three options (drop, mean, median), clicked methods should be stored in this variable
     confidence_interval = false //Option with click yes or no
@@ -59,7 +60,6 @@ jQuery.get('data/results_custom_dataset_500_5.txt', function(data) {
                             column_name = column_names[column_index]
                             desired_fields[column_name] = fields[column_index]
                         }
-                        console.log(desired_fields)
                     
                         plot_data.push(desired_fields)
                     }
@@ -183,9 +183,9 @@ jQuery.get('data/results_custom_dataset_500_5.txt', function(data) {
 
     }
 
-    if (x_variable == 'missing_rows_percentage') {
+    if (x_variable == 'missing_rows_proportion') {
         var x_axis_name = 'Proportion of incomplete rows'
-    } else if (x_variable == 'missing_cells_percentage') {
+    } else if (x_variable == 'missing_cells_proportion') {
         var x_axis_name = 'Proportion of missing data cells'
     }
 
