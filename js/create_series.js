@@ -160,7 +160,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
     return {
         series: series,
         y_axis_name: y_axis_name,
-        y_min = y_min,
-        y_max = y_max,
+        y_min: y_min,
+        y_max: y_max,
     };
 }
