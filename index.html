@@ -6,28 +6,29 @@
 		<script src="lib/highcharts/modules/exporting.js"></script>
 
 		<script src="lib/jquery/jquery-3.2.1.min.js"></script>
+		<link rel="stylesheet" type="text/css" href="mystyles.css" media="screen" />
 	</HEAD>
 	<BODY>
 		<div id="container" style="min-width: 310px; height: 400px; margin: 0 auto"></div>
-		<p>Choose missingness mechanism:</p>
-		<button onclick="change_missing_type('MCAR')">MCAR</button>
+		<!--<p>Choose missingness mechanism:</p>-->
+		<p>Mechanism:<button onclick="change_missing_type('MCAR')">MCAR</button>
 		<button onclick="change_missing_type('MAR')">MAR</button>
-		<button onclick="change_missing_type('MNAR')">MNAR</button>
-		<p>Choose evaluation error metric:</p>
-		<button onclick="change_evaluation_error_metric('MSE')">MSE</button>
+		<button onclick="change_missing_type('MNAR')">MNAR</button><br>
+		<!--<p>Choose evaluation error metric:</p>-->
+		Error Metric:<button onclick="change_evaluation_error_metric('MSE')">MSE</button>
 		<button onclick="change_evaluation_error_metric('RMSE')">RMSE</button>
-		<button onclick="change_evaluation_error_metric('R2')">R2</button>
-		<p>Choose calculation of proportion of missingness:</p>
-		<button onclick="change_x_variable('missing_cells_proportion')">CELLS</button>
-		<button onclick="change_x_variable('missing_rows_proportion')">ROWS</button>
-		<p>Choose inclusion of confidence interval:</p>
-		<button onclick="change_confidence_interval('True')">Yes</button>
-		<button onclick="change_confidence_interval('False')">No</button>
-		<p>Choose data set:</p>
-		<button onclick="change_data_set('forest_fires')">Forest Fires</button>
+		<button onclick="change_evaluation_error_metric('R2')">R2</button><br>
+		<!--<p>Choose calculation of proportion of missingness:</p>-->
+		X-Axis:<button onclick="change_x_variable('missing_cells_proportion')">CELLS</button>
+		<button onclick="change_x_variable('missing_rows_proportion')">ROWS</button><br>
+		<!--<p>Choose inclusion of confidence interval:</p>-->
+		Range:<button onclick="change_confidence_interval('True')">YES</button>
+		<button onclick="change_confidence_interval('False')">NO</button><br>
+		<!--<p>Choose data set:</p>-->
+		Dataset:<button onclick="change_data_set('forest_fires')">Forest Fires</button>
 		<button onclick="change_data_set('slump_test')">Concrete Slump Test</button>
 		<button onclick="change_data_set('custom_dataset_poor_small')">Poor/Small</button>
-		<button onclick="change_data_set('custom_dataset_rich_large')">Rich/Large</button>
+		<button onclick="change_data_set('custom_dataset_rich_large')">Rich/Large</button></p>
 	</BODY>
 	<FOOTER>
 		<!--Hand made-->
