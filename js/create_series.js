@@ -8,6 +8,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
     column_names.forEach(function(column, index) {
         header_map[column] = index;
     });
+    console.log(header_map)
 
     //Find where the desired data is stored in the matrix
     desired_columns_indexes = []
@@ -16,10 +17,10 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
         column_index = header_map[column]
         desired_columns_indexes.push(column_index)
 
-        /*if (confidence_interval) {    
+        if (confidence_interval) {
         desired_columns_indexes.push(parseInt(column_index) + 1) //lower bound
         desired_columns_indexes.push(parseInt(column_index) + 2) //upper bound
-        }*/
+        }
     }
 
     plot_data = [];
@@ -28,11 +29,9 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
         fields = line.split("\t")
 
         if (fields[header_map['missing_type']] == missing_type) {
-            //console.log("CHECK!")
             if (fields[header_map['evaluation_metric']] == evaluation_metric) {
-               // console.log("CHECK!")
                 if (fields[header_map['model']] == evaluation_model) {
-                    var desired_fields = {"x":fields[header_map[x_variable]]}
+                    var desired_fields = {"x":fields[header_map[x_variable]]} //dit gaat mis als x_variable is: missing_cells_proportion
                     for (index in desired_columns_indexes){
                         column_index = desired_columns_indexes[index]
                         column_name = column_names[column_index]
@@ -45,10 +44,9 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
             }
         }
     }
-    console.log(plot_data)
 
     lines_data = [];
-    //ranges_data = [];
+    ranges_data = [];
 
     if (evaluation_error_metric == 'RMSE') {
 
@@ -60,7 +58,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
             });
 
             lines_data.push(one_line)
-            /*
+
             if (confidence_interval) {
 
                 lower_bound_imputation_method = column_names[parseInt(header_map[imputation_method]) + parseInt(1)]
@@ -71,8 +69,8 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
                 });
 
                 ranges_data.push(one_range)
-                
-            }*/
+
+             }
         }
 
         var y_axis_name = "RMSE"
@@ -87,7 +85,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
             });
 
             lines_data.push(one_line)
-            /*
+
             if (confidence_interval) {
 
                 lower_bound_imputation_method = column_names[parseInt(header_map[imputation_method]) + parseInt(1)]
@@ -98,7 +96,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
                 });
 
                 ranges_data.push(one_range)
-            }*/
+            }
         }
 
         if (evaluation_error_metric == 'MSE') {
@@ -112,9 +110,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
         }
     } 
 
-    console.log(lines_data)
-
-    series = [];    
+    series = [];
 
     for (imputation_method_index in desired_columns) {
 
@@ -134,7 +130,7 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
         }
 
         series.push(line)
-        /*
+
         if (confidence_interval) {
 
             range_data = ranges_data[imputation_method_index]
@@ -155,10 +151,16 @@ function create_series(data, desired_columns, missing_type, evaluation_metric, e
             }
 
             series.push(range)
-
         }
-*/
     }
-    console.log(series)
-    return(series);
+
+    y_min = 0.1 // I want to define y_min en y_max here, and give it to create_chart
+    y_max = 1.0
+
+    return {
+        series: series,
+        y_axis_name: y_axis_name,
+        y_min: y_min,
+        y_max: y_max,
+    };
 }
